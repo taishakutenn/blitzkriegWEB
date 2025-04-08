@@ -10,9 +10,11 @@ from app.models import User
 
 @app.route("/")
 @app.route("/index")
-@login_required  # Декортаор определящий, нужен ли здесь быть залогиненмы или нет
+# @login_required  # Декортаор определящий, нужен ли здесь быть залогиненмы или нет
 def index():
-    return render_template("base.html")
+    params = {"title": "Главная"}
+
+    return render_template("index.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
