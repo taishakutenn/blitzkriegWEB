@@ -1,4 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1>Пока просто хеадер, ну а что?</h1>
+{% for demon in demonlist %}
+<div class="card mb-3" style="max-width: 1000px; max-height: 180px">
+    <div class="row g-0">
+        <div class="col-md-4">
+            <img src={{demon['thumbnail']}} class="img-fluid rounded-start"
+                 style="max-height: 179px; max-width: 320px" alt="...">
+        </div>
+        <div class="col-md-8">
+            <a class="card-body level-list-card" href="level/{{ demon['level_id'] }}">
+                <h5 class="card-title ml-4">#{{ demon['position'] }} - {{ demon['name'] }}</h5>
+                <p class="card-text ml-4">Создано: {{ demon['publisher']['name'] }}
+                    <br>Проверено: {{ demon['verifier']['name'] }}
+                </p>
+                <p class="card-text ml-4"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+            </a>
+        </div>
+    </div>
+</div>
+{% endfor %}
 {% endblock %}
