@@ -5,18 +5,16 @@
   <div class="d-flex justify-content-center align-items-start min-vh-100">
     <!-- Блок с формой и фоном -->
     <div class="bg-light p-4 rounded shadow mt-5" style="width: 100%; max-width: 400px;">
-      <form action="{{ url_for('register') }}" method="post">
+      <form action="{{ url_for('login') }}" method="post">
         {{ form.csrf_token }}
+
+        <!-- Скрытое поле для параметра next -->
+        <input type="hidden" name="next" value="{{ next }}">
+
         <!-- Поле для ввода username -->
         <div class="mb-3">
           {{ form.username.label(class="form-label") }}
           {{ form.username(class="form-control") }}
-        </div>
-
-        <!-- Поле для ввода email -->
-        <div class="mb-3">
-          {{ form.email.label(class="form-label") }}
-          {{ form.email(class="form-control") }}
         </div>
 
         <!-- Поле для ввода пароля -->
@@ -25,10 +23,10 @@
           {{ form.password(class="form-control") }}
         </div>
 
-        <!--Подтверждение пароля-->
-        <div class="mb-3">
-          {{ form.confirm_password.label(class="form-label") }}
-          {{ form.confirm_password(class="form-control") }}
+        <!-- Поле "Remember Me" -->
+        <div class="mb-3 form-check">
+          {{ form.remember_me(class="form-check-input") }}
+          {{ form.remember_me.label(class="form-check-label") }}
         </div>
 
         <!-- Кнопка отправки формы -->
