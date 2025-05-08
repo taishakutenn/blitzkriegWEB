@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 {% for demon in demonlist %}
-<div class="card mb-3" style="max-width: 1000px; max-height: 180px">
+<div class="card mb-3 card_size" style="max-width: 1000px; max-height: 180px">
     <div class="row g-0">
         <div class="col-md-4">
             <img src={{demon['thumbnail']}} class="img-fluid rounded-start"
@@ -13,7 +13,9 @@
                 <p class="card-text ml-4">Создано: {{ demon['publisher']['name'] }}
                     <br>Проверено: {{ demon['verifier']['name'] }}
                 </p>
-                <p class="card-text ml-4"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+                <a href="{{ demon['video'] }}" target="_blank">
+                    <p class="card-text ml-4"><small class="text-body-secondary">Видео проверки</small></p>
+                </a>
             </a>
         </div>
     </div>

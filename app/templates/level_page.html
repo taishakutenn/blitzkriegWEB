@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card mb-3 card_size" style="max-width: 50%; text-align: center">
+    <div class="p-3 pb-md-4 text-center">
+        <h2>{{ gd_info['title'] }}</h2>
+        <p>{{ gd_info['description'] }}</p>
+        {% if pointer_info %}
+        <img src={{pointer_info['thumbnail']}} class="center-img" alt="Не удалось найти картинку">
+        <div class="container">
+            <h4>Верифер</h4>
+            <a>{{ pointer_info['verifier']['name'] }}</a><br>
+            <a target="_blank"
+               class="text-body-secondary"
+               href="{{ pointer_info['video'] }}">Видео верификации</a>
+        </div>
+        {% else %}
+        <img src=https://raw.githubusercontent.com/cdc-sys/level-thumbnails/main/thumbs/{{gd_info['id']}}.png
+             class="center-img" style="width: 320px; height: 180px" alt="Не удалось найти картинку">
+        <p>Этого уровня нет в <a target="_blank" href="https://pointercrate.com/">pointercrate</a></p>
+        {% endif %}
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 mb-3 text-center" style="margin-left: 10px; margin-right: 10px">
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h5 class="my-0 fw-normal">Создатель</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ gd_info['creator'] }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h5 class="my-0 fw-normal">ID уровня</h5></div>
+                <div class="card-body">
+                    <p>{{ gd_info['id'] }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h5 class="my-0 fw-normal">Длина</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ gd_info['length'] }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h5 class="my-0 fw-normal">Музыка</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        <a target="_blank"
+                           class="text-body-secondary"
+                           href="https://www.newgrounds.com/audio/listen/{{ gd_info['song'] }}">{{ gd_info['song'] }}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm border-primary">
+                <div class="card-header py-3 text-bg-primary border-primary">
+                    <h5 class="my-0 fw-normal">Сложность</h5>
+                </div>
+                <div class="card-body">
+                    <img src={{gd_info['difficulty'][1]}} class="center-img" alt="{{ gd_info['difficulty'][0] }}">
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h5 class="my-0 fw-normal">Версия игры</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ gd_info['version'] }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card mb-3 card_size" style="max-width: 45%; text-align: center">
+    <h2>Таблица прогрессов</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">First</th>
+            <th scope="col">Last</th>
+            <th scope="col">Handle</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row">1</th>
+            <td>Mark</td>
+            <td>Otto</td>
+            <td>@mdo</td>
+        </tr>
+        <tr>
+            <th scope="row">2</th>
+            <td>Jacob</td>
+            <td>Thornton</td>
+            <td>@fat</td>
+        </tr>
+        <tr>
+            <th scope="row">3</th>
+            <td>John</td>
+            <td>Doe</td>
+            <td>@social</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

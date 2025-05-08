@@ -1,5 +1,4 @@
 """В этом файле будут находиться все обработчики маршрутов на сайте"""
-
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 import os
@@ -8,14 +7,16 @@ import asyncio
 from app import app, db
 from app.forms import LoginForm, RegisterForm
 from app.models import User
-from app.other import get_demonlist
+from app.pointercrateAPI import get_demonlist, get_lvl
+from app.gdAPI import find_lvl
+
+if os.name == 'nt':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 @app.route("/")
 @app.route("/index")
 def index():
-    if os.name == 'nt':
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     params = {"title": "Главная",
               'demonlist': asyncio.run(get_demonlist())}
     # {'id': 562,
@@ -28,6 +29,22 @@ def index():
     # 'verifier': {'id': 53408, 'name': '[POB2P] Zoink', 'banned': False},
     # 'level_id': 86407629}
     return render_template("index.html", **params)
+
+
+@app.route("/level/<lvl_id>", methods=["GET", "POST"])
+def level(lvl_id):
+    pointer = asyncio.run(get_lvl(lvl_id))
+    gd = find_lvl(lvl_id)
+
+    if find_lvl(f'{gd['title']} startpos'[:20]):
+        start_pos = find_lvl(f'{gd['title']} startpos'[:20])
+    elif find_lvl(f'{gd['title']} sp'[:20]):
+        start_pos = find_lvl(f'{gd['title']} sp'[:20])
+
+    params = {"title": gd['title'],
+              "pointer_info": pointer,
+              "gd_info": gd}
+    return render_template("level_page.html", **params)
 
 
 @app.route("/login", methods=["GET", "POST"])
