@@ -19,13 +19,20 @@
 
           <!-- Кнопки "Войти" и "Зарегистрироваться" справа -->
           {% if not current_user.is_authenticated %}
-            <div class="d-flex" style="margin-left: auto">
-              <form class="d-flex me-2" method="get" action="{{ url_for('login') }}">
+            <div class="d-flex">
+              <form class="d-flex me-2" action="{{ url_for('login') }}" method="get">
                 <button type="submit" class="btn btn-primary">Войти</button>
               </form>
               <form class="d-flex" method="get" action="{{ url_for('register') }}">
                 <button type="submit" class="btn btn-primary">Зарегестрироваться</button>
               </form>
+            </div>
+          {% else %}
+            <div class="d-flex">
+              <a class="nav-link active" href="{{ url_for('user_account', username=current_user.username) }}">
+                {{ current_user.username }}
+              </a>
+              <img src="{{ current_user.avatar(34) }}">
             </div>
           {% endif %}
         </div>

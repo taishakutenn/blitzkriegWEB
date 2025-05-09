@@ -9,20 +9,20 @@ from app.models import User
 
 
 class LoginForm(FlaskForm):
-    username = StringField("Username", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[DataRequired()])
-    remember_me = BooleanField("Remember me")
-    submit = SubmitField("Login")
+    username = StringField("Email", validators=[DataRequired()])
+    password = PasswordField("Пароль", validators=[DataRequired()])
+    remember_me = BooleanField("Запомнить меня")
+    submit = SubmitField("Войти")
 
 
 class RegisterForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired(), Length(3, 15)])
     email = EmailField("Email", validators=(DataRequired(), Email()))
-    password = PasswordField("Password", \
+    password = PasswordField("Пароль", \
                              validators=[DataRequired(), Length(6, 25),
                                          EqualTo("confirm_password", message="Пароли не совпадают")])
-    confirm_password = PasswordField("Password")
-    submit = SubmitField("Register")
+    confirm_password = PasswordField("Повторите пароль")
+    submit = SubmitField("Зарегистрироваться")
 
 
     def validate_username(self, username):

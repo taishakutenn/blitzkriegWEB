@@ -2,6 +2,7 @@
 
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from hashlib import md5
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import db, login
@@ -23,6 +24,14 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
+
+    def avatar(self, size):
+        """Этот метод генерирует url-адресс пользователя, на основе его почты, с помощью этого url
+        адресса на сервере Gravatar хранится аватарка пользоватлея, если этой аватарки нет, с помощью
+        параметра d в url-запроссе выставляется случайный аватар геометрического объекта"""
+
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return f"https://www.gravatar.com/avatar/{digest}?s={size}&d=identicon"
 
 
 class Level(db.Model):
