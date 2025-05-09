@@ -81,7 +81,8 @@ async def find_lvl(lvl_string):
                 'song': song,
                 'version': version,
                 'length': ['tiny', 'short', 'medium', 'long', 'xl'][int(info['15'])],
-                'description': base64.b64decode(info['3']).decode('ASCII')}
+                'description': base64.b64decode(info['3']).decode('ASCII'),
+                'copyID': info['30'] if '30' in info.keys() else None}
 
 
 async def get_blitzkrieg(lvl_id):

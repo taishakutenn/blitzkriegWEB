@@ -20,7 +20,7 @@
           <!-- Кнопки "Войти" и "Зарегистрироваться" справа -->
           {% if not current_user.is_authenticated %}
             <div class="d-flex" style="margin-left: auto">
-              <form class="d-flex me-2">
+              <form class="d-flex me-2" method="get" action="{{ url_for('login') }}">
                 <button type="submit" class="btn btn-primary">Войти</button>
               </form>
               <form class="d-flex" method="get" action="{{ url_for('register') }}">
@@ -39,7 +39,7 @@
     </main>
 
     <!-- Футер -->
-    <footer class="py-3" style="margin-left: 35%">
+    <footer class="py-3" style="margin-left: 35%;">
       <div class="container">
         <div class="row">
           <div class="col-md-4">
