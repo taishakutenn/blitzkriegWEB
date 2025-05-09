@@ -8,7 +8,7 @@ from app import app, db
 from app.forms import LoginForm, RegisterForm
 from app.models import User
 from app.pointercrateAPI import get_demonlist, get_lvl
-from app.gdAPI import find_lvl
+from app.gdAPI import find_lvl, get_blitzkrieg
 
 if os.name == 'nt':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -31,19 +31,45 @@ def index():
     return render_template("index.html", **params)
 
 
+async def async_tasks(tasks):
+    return [await task for task in asyncio.as_completed(tasks)]
+
+
 @app.route("/level/<lvl_id>", methods=["GET", "POST"])
 def level(lvl_id):
-    pointer = asyncio.run(get_lvl(lvl_id))
-    gd = find_lvl(lvl_id)
+    # Находим информацию об уровне
+    gd = pointer = None
+    for response in asyncio.run(async_tasks([get_lvl(lvl_id), find_lvl(lvl_id)])):
+        if type(response) is dict:
+            if 'song' in response.keys():
+                gd = response
+            else:
+                pointer = response
 
-    if find_lvl(f'{gd['title']} startpos'[:20]):
-        start_pos = find_lvl(f'{gd['title']} startpos'[:20])
-    elif find_lvl(f'{gd['title']} sp'[:20]):
-        start_pos = find_lvl(f'{gd['title']} sp'[:20])
+    # Находим start_pos копию
+    start_pos = None
+    for response in asyncio.run(async_tasks([find_lvl(f'{gd['title']} startpos'[:20]),
+                                             find_lvl(f'{gd['title']} sp'[:20])])):
+        if type(response) is dict:
+            if response['title'].lower() == f'{gd['title']} startpos'[:20].lower():
+                start_pos = response
+                break
+            else:
+                start_pos = response
 
+    # Таблица блитцкрига
+    if start_pos is not None:
+        table = asyncio.run(get_blitzkrieg(start_pos['id']))
+    else:
+        table = []
+
+    # Рендерим страницу
     params = {"title": gd['title'],
               "pointer_info": pointer,
-              "gd_info": gd}
+              "gd_info": gd,
+              "table": table,
+              "start_pos": start_pos}
+
     return render_template("level_page.html", **params)
 
 

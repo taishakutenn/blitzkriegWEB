@@ -1,12 +1,12 @@
 import asyncio
 import aiohttp
-from request_data import request_data
+from app.request_data import request_data_get
 
 
 async def get_demonlist():
     url = 'https://pointercrate.com/api/v2/demons/listed/'
     async with aiohttp.ClientSession() as session:
-        tasks = [request_data(url, {'limit': 50, 'after': i}, session) for i in range(0, 101, 50)]
+        tasks = [request_data_get(url, {'limit': 50, 'after': i}, session) for i in range(0, 101, 50)]
         top = []
         for task in asyncio.as_completed(tasks):
             top += await task
@@ -20,8 +20,7 @@ async def get_demonlist():
 async def get_lvl(lvl_id):
     url = 'https://pointercrate.com/api/v2/demons/listed/'
     async with aiohttp.ClientSession() as session:
-        demon = await request_data(url, {'level_id': lvl_id}, session)
-        print(demon)
+        demon = await request_data_get(url, {'level_id': lvl_id}, session)
         if demon:
             demon = demon[0]
             if demon['verifier']['name'][0] == '[':

@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="card mb-3 card_size" style="max-width: 50%; text-align: center">
+<div class="card mb-3 card_size" style="max-width: 1000px; text-align: center; font-size: 20px;">
     <div class="p-3 pb-md-4 text-center">
         <h2>{{ gd_info['title'] }}</h2>
         <p>{{ gd_info['description'] }}</p>
         {% if pointer_info %}
-        <img src={{pointer_info['thumbnail']}} class="center-img" alt="Не удалось найти картинку">
+        <img src={{pointer_info['thumbnail']}}
+             class="center-img rounded" style="width: 384px; height: 216px" alt="Не удалось найти картинку">
         <div class="container">
             <h4>Верифер</h4>
             <a>{{ pointer_info['verifier']['name'] }}</a><br>
@@ -15,7 +16,7 @@
         </div>
         {% else %}
         <img src=https://raw.githubusercontent.com/cdc-sys/level-thumbnails/main/thumbs/{{gd_info['id']}}.png
-             class="center-img" style="width: 320px; height: 180px" alt="Не удалось найти картинку">
+             class="center-img rounded" style="width: 20vw; height: 11.25vw" alt="Не удалось найти картинку">
         <p>Этого уровня нет в <a target="_blank" href="https://pointercrate.com/">pointercrate</a></p>
         {% endif %}
     </div>
@@ -71,7 +72,8 @@
                     <h5 class="my-0 fw-normal">Сложность</h5>
                 </div>
                 <div class="card-body">
-                    <img src={{gd_info['difficulty'][1]}} class="center-img" alt="{{ gd_info['difficulty'][0] }}">
+                    <img src={{gd_info['difficulty'][1]}} style="width: 160px; height: 144px"
+                         class="center-img" alt="{{ gd_info['difficulty'][0] }}">
                 </div>
             </div>
         </div>
@@ -87,36 +89,58 @@
         </div>
     </div>
 </div>
-<div class="card mb-3 card_size" style="max-width: 45%; text-align: center">
-    <h2>Таблица прогрессов</h2>
-    <table class="table">
+
+<!-- Блицкриг таблица -->
+<div class="card mb-3 card_size text-center" style="max-width: 1000px; font-size: 2vh;">
+    <div class="p-3 pb-md-4 text-center">
+        <h2>Таблица прогрессов</h2>
+        <p style="margin: 0">ID копии: {{ start_pos['id'] }}</p>
+        <p style="margin: 0">от {{ start_pos['creator'] }}</p>
+    </div>
+    <table class="table table-hover">
         <thead>
         <tr>
-            <th scope="col">#</th>
-            <th scope="col">First</th>
-            <th scope="col">Last</th>
-            <th scope="col">Handle</th>
+            <th scope="col">Стадии</th>
+            <th scope="col">Статус</th>
+            <th scope="col">Лучший прогресс</th>
         </tr>
         </thead>
-        <tbody>
-        <tr>
-            <th scope="row">1</th>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
+        <tbody class="table-group-divider">
+        {% for stage in table %}
+        <tr class="table-active">
+            <th scope="row">Stage {{ loop.index }}</th>
+            <td>
+                <div class="content">
+                    <label class="checkBox">
+                        <input id="stage{{ loop.index }}" type="checkbox" class="{{ loop.index }}">
+                        <span class="transition" style="background-color: lime"></span>
+                    </label>
+                </div>
+            </td>
+            <td>-</td>
         </tr>
+        {% set s = loop.index %}
+        {% for run in stage %}
         <tr>
-            <th scope="row">2</th>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
+            <th scope="row">{{ run }}</th>
+            <td>
+                <div class="content">
+                    <label class="checkBox">
+                        <input id="s{{ s }}run{{ loop.index }}" class="{{ s }}" type="checkbox">
+                        <span class="transition"></span>
+                    </label>
+                </div>
+            </td>
+            <td>
+                <input type="text" class="form-control text-white text-center"
+                       aria-describedby="inputGroup-sizing-sm"
+                       placeholder="Best run"
+                       style="width: 200px; height: 3vh; margin: auto; font-size: 2vh;
+                       font-weight: bold; border: none; background: none;">
+            </td>
         </tr>
-        <tr>
-            <th scope="row">3</th>
-            <td>John</td>
-            <td>Doe</td>
-            <td>@social</td>
-        </tr>
+        {% endfor %}
+        {% endfor %}
         </tbody>
     </table>
 </div>
