@@ -64,7 +64,6 @@ async def find_lvl(lvl_string):
             version = 1.7
         else:
             version = int(info['13']) / 10
-        songs = 'https://static.wikia.nocookie.net/geometry-dash/images/{}.ogg/revision/latest?cb={}&path-prefix=ru'
         if int(info['35']):
             song = info['35']
         else:
@@ -116,7 +115,8 @@ async def get_blitzkrieg(lvl_id):
 
         table = []
         for stage in range(1, len(start_poses)):
-            table.append([f'{p1} - {p2}' for p1, p2 in list(zip(start_poses[:-stage:], start_poses[stage::]))[::-1]])
+            table.append([[f'{p1} - {p2}', False]
+                          for p1, p2 in list(zip(start_poses[:-stage:], start_poses[stage::]))[::-1]])
         return table
 
 

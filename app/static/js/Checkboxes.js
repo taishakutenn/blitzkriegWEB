@@ -10,3 +10,23 @@ for (let step = 1; step < 100; step++) {
         synchronize_checkboxes(step)
     } catch (error) {}
 }
+
+document.addEventListener("visibilitychange", function logData() {
+
+  if (document.visibilityState === "hidden") {
+    const bytes = new TextEncoder().encode(
+            JSON.stringify(
+            [
+            [...document.querySelectorAll('.lvl_info')].map((x) => x = x.textContent)
+            ].concat(
+            [...document.querySelectorAll('[type="checkbox"]')].map((x) => x = [x.name, x.checked])
+        ))
+    );
+
+    let data = new Blob([bytes],
+    {'type': 'application/json;charset=utf-8'}
+    );
+
+    navigator.sendBeacon("/save_state", data);
+  }
+});

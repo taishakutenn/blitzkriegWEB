@@ -40,6 +40,7 @@ class Level(db.Model):
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     name = sa.Column(sa.String(100), index=True, nullable=False)
     level_id = sa.Column(sa.Integer, nullable=False)
+    copy_id = sa.Column(sa.Integer, nullable=True)
     is_completed = sa.Column(sa.Boolean, default=False)
     percent = sa.Column(sa.Integer, default=0)
     user_id = sa.Column(sa.Integer, sa.ForeignKey("users.id"), nullable=False)
@@ -56,6 +57,7 @@ class Stage(db.Model):
 
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     number = sa.Column(sa.Integer)
+    is_completed = sa.Column(sa.Boolean, default=False)
     level_id = sa.Column(sa.Integer, sa.ForeignKey("levels.id"), nullable=False)
 
     # Связь с дочерней таблицей

@@ -3,16 +3,22 @@ from flask import render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 import os
 import asyncio
+from urllib.parse import urlsplit
 from is_safe_url import is_safe_url
 
 from app import app, db
 from app.forms import LoginForm, RegisterForm
-from app.models import User
+from app.models import User, Level, Stage, Run
 from app.pointercrateAPI import get_demonlist, get_lvl
 from app.gdAPI import find_lvl, get_blitzkrieg
 
 if os.name == 'nt':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+
+@app.errorhandler(415)
+def unsupported_media_type(error):
+    return redirect('/')
 
 
 @app.route("/")
@@ -34,6 +40,59 @@ def index():
 
 async def async_tasks(tasks):
     return [await task for task in asyncio.as_completed(tasks)]
+
+
+@app.route("/save_state", methods=["GET", "POST"])
+def save_state():
+    # Получаем и форматируем информацию из таблицы
+    [level_name, level_id, copy_id], *row_runs = request.json
+    table = []
+    for run in row_runs:
+        if 'Stage' in run[0]:
+            table.append([run[1]])
+        else:
+            table[-1].append(run)
+
+    # Получаем уровень
+    lvl = db.session.query(Level).filter(Level.user == current_user, Level.level_id == level_id).first()
+
+    # Добавляем уровень, если его нет в бд
+    if lvl is None and 'True' in str(table):
+        lvl = Level(name=level_name,
+                    level_id=level_id,
+                    copy_id=copy_id,
+                    is_completed=False,
+                    percent=0,
+                    user_id=current_user.id)
+        db.session.add(lvl)
+        for number, runs in enumerate(table):
+            stage = Stage(number=number,
+                          is_completed=False,
+                          level=lvl)
+            db.session.add(stage)
+            for percentages, is_completed in runs[1:]:
+                run = Run(percentages=percentages,
+                          is_completed=is_completed,
+                          stage=stage)
+                db.session.add(run)
+
+    # Обновляем значения в бд
+    if lvl:
+        for stage in lvl.stages:
+            if table[stage.number][0]:
+                stage.is_completed = True
+            for n, run in enumerate(stage.runs):
+                run.is_completed = table[stage.number][1:][n][1]
+
+        # Измеряем, пройден ли уровень
+        completed = len(db.session.query(Stage.is_completed).filter(
+            Stage.is_completed == 1, Stage.level == lvl).all())
+        all_runs = len(table[1:])
+        if completed == all_runs:
+            lvl.is_completed = True
+
+    db.session.commit()
+    return "none"
 
 
 @app.route("/level/<lvl_id>", methods=["GET", "POST"])
@@ -86,7 +145,9 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for("index"))
 
-    next_page = request.args.get("next")
+    next_page = request.args.get('next')
+    if not next_page or urlsplit(next_page).netloc != '':
+        next_page = url_for('index')
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -128,7 +189,7 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        return redirect(url_for("index"))
+        return redirect(url_for("login"))
 
     params = {"title": "Регистрация",
               "form": form}
