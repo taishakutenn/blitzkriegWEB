@@ -79,7 +79,7 @@ async def find_lvl(lvl_string):
                 'difficulty': diff,
                 'song': song,
                 'version': version,
-                'length': ['tiny', 'short', 'medium', 'long', 'xl'][int(info['15'])],
+                'length': ['tiny', 'short', 'medium', 'long', 'xl', 'plat'][int(info['15'])],
                 'description': base64.b64decode(info['3']).decode('ASCII'),
                 'copyID': info['30'] if '30' in info.keys() else None}
 
@@ -115,8 +115,8 @@ async def get_blitzkrieg(lvl_id):
 
         table = []
         for stage in range(1, len(start_poses)):
-            table.append([[f'{p1} - {p2}', False]
-                          for p1, p2 in list(zip(start_poses[:-stage:], start_poses[stage::]))[::-1]])
+            table.append([False] + [[f'{p1} - {p2}', False]
+                                    for p1, p2 in list(zip(start_poses[:-stage:], start_poses[stage::]))[::-1]])
         return table
 
 

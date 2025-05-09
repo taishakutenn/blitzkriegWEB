@@ -46,6 +46,7 @@ async def async_tasks(tasks):
 def save_state():
     # Получаем и форматируем информацию из таблицы
     [level_name, level_id, copy_id], *row_runs = request.json
+    level_id = level_id.split()[-1]
     table = []
     for run in row_runs:
         if 'Stage' in run[0]:
@@ -79,8 +80,7 @@ def save_state():
     # Обновляем значения в бд
     if lvl:
         for stage in lvl.stages:
-            if table[stage.number][0]:
-                stage.is_completed = True
+            stage.is_completed = table[stage.number][0]
             for n, run in enumerate(stage.runs):
                 run.is_completed = table[stage.number][1:][n][1]
 
@@ -88,8 +88,7 @@ def save_state():
         completed = len(db.session.query(Stage.is_completed).filter(
             Stage.is_completed == 1, Stage.level == lvl).all())
         all_runs = len(table[1:])
-        if completed == all_runs:
-            lvl.is_completed = True
+        lvl.is_completed = completed == all_runs
 
     db.session.commit()
     return "none"
@@ -106,22 +105,33 @@ def level(lvl_id):
             else:
                 pointer = response
 
-    # Находим start_pos копию
-    start_pos = None
-    for response in asyncio.run(async_tasks([find_lvl(f'{gd['title']} startpos'[:20]),
-                                             find_lvl(f'{gd['title']} sp'[:20])])):
-        if type(response) is dict:
-            if response['title'].lower() == f'{gd['title']} startpos'[:20].lower():
-                start_pos = response
-                break
-            else:
-                start_pos = response
+    lvl = db.session.query(Level).filter(Level.user == current_user, Level.level_id == gd['id']).first()
+    start_pos = asyncio.run(find_lvl(lvl.copy_id))
+    table = []
+    if lvl is None:
+        # Находим start_pos копию
+        for response in asyncio.run(async_tasks([find_lvl(f'{gd['title']} startpos'[:20]),
+                                                 find_lvl(f'{gd['title']} sp'[:20])])):
+            if type(response) is dict:
+                if response['title'].lower() == f'{gd['title']} startpos'[:20].lower():
+                    start_pos = response
+                    break
+                else:
+                    start_pos = response
 
-    # Таблица блитцкрига
-    if start_pos is not None:
-        table = asyncio.run(get_blitzkrieg(start_pos['id']))
+        # Составление таблицы из копии
+        if start_pos is not None:
+            table = asyncio.run(get_blitzkrieg(start_pos['id']))
+
     else:
-        table = []
+        # Составление таблицы из бд
+        for stage in lvl.stages:
+            table.append([])
+            table[-1].append(stage.is_completed)
+            for run in stage.runs:
+                table[-1].append([run.percentages, run.is_completed])
+
+    print(table)
 
     # Рендерим страницу
     params = {"title": gd['title'],

@@ -11,9 +11,7 @@ for (let step = 1; step < 100; step++) {
     } catch (error) {}
 }
 
-document.addEventListener("visibilitychange", function logData() {
-
-  if (document.visibilityState === "hidden") {
+window.addEventListener("beforeunload", function logData() {
     const bytes = new TextEncoder().encode(
             JSON.stringify(
             [
@@ -28,5 +26,4 @@ document.addEventListener("visibilitychange", function logData() {
     );
 
     navigator.sendBeacon("/save_state", data);
-  }
 });

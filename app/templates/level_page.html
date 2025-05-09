@@ -95,7 +95,7 @@
     <div class="p-3 pb-md-4 text-center">
         <h2>Таблица прогрессов</h2>
         <h4>Информация о копии</h4>
-        <p style="margin: 0" class="lvl_info">{{ start_pos['id'] }}</p>
+        <p style="margin: 0" class="lvl_info">ID уровня: {{ start_pos['id'] }}</p>
         <p style="margin: 0">от {{ start_pos['creator'] }}</p>
     </div>
     <table class="table table-hover">
@@ -113,8 +113,11 @@
             <td>
                 <div class="content">
                     <label class="checkBox">
-                        <input name="Stage {{ loop.index }}"
-                               id="stage{{ loop.index }}" type="checkbox" class="{{ loop.index }}">
+                        {% if stage[0] %}
+                        <input name="Stage {{ loop.index }}" type="checkbox" class="{{ loop.index }}" checked>
+                        {% else %}
+                        <input name="Stage {{ loop.index }}" type="checkbox" class="{{ loop.index }}">
+                        {% endif %}
                         <span class="transition" style="background-color: lime"></span>
                     </label>
                 </div>
@@ -122,14 +125,17 @@
             <td>-</td>
         </tr>
         {% set s = loop.index %}
-        {% for run, state in stage %}
+        {% for run, state in stage[1:] %}
         <tr>
             <th scope="row">{{ run }}</th>
             <td>
                 <div class="content">
                     <label class="checkBox">
-                        <input name="{{ run }}"
-                               id="s{{ s }}run{{ loop.index }}" class="{{ s }}" type="checkbox">
+                        {% if state %}
+                        <input name="{{ run }}" class="{{ s }}" type="checkbox" checked>
+                        {% else %}
+                        <input name="{{ run }}" class="{{ s }}" type="checkbox">
+                        {% endif %}
                         <span class="transition"></span>
                     </label>
                 </div>
