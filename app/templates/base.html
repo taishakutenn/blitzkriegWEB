@@ -33,11 +33,17 @@
                 </form>
             </div>
             {% else %}
-            <div class="d-flex">
-                <a class="nav-link active" href="{{ url_for('user_account', username=current_user.username) }}">
-                    {{ current_user.username }}
-                </a>
-                <img src="{{ current_user.avatar(34) }}">
+            <div class="d-flex row">
+                <div class="col-md-6">
+                    <a class="nav-link active pt-2 text-nowrap" style="font-size: 20px"
+                       href="{{ url_for('user_profile', user_id=current_user.id) }}">
+                        {{ current_user.username }}
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <img style="border-radius: 50%;" src="../static/img/users_avatars/{{ current_user.source_image }}"
+                         width="50px" height="50px">
+                </div>
             </div>
             {% endif %}
         </div>

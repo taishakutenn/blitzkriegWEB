@@ -1,4 +1,6 @@
 """В этом файле будут находиться все обработчики маршрутов на сайте"""
+from random import choices
+
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 import os
@@ -7,7 +9,7 @@ from urllib.parse import urlsplit
 from is_safe_url import is_safe_url
 
 from app import app, db
-from app.forms import LoginForm, RegisterForm
+from app.forms import LoginForm, RegisterForm, EditForm, EditPasswordForm
 from app.models import User, Level, Stage, Run
 from app.pointercrateAPI import get_demonlist, get_lvl
 from app.gdAPI import find_lvl, get_blitzkrieg
@@ -87,7 +89,7 @@ def save_state():
         # Измеряем, пройден ли уровень
         completed = len(db.session.query(Stage.is_completed).filter(
             Stage.is_completed == 1, Stage.level == lvl).all())
-        all_runs = len(table[1:])
+        all_runs = len(table)
         lvl.is_completed = completed == all_runs
 
     db.session.commit()
@@ -106,7 +108,7 @@ def level(lvl_id):
                 pointer = response
 
     lvl = db.session.query(Level).filter(Level.user == current_user, Level.level_id == gd['id']).first()
-    start_pos = asyncio.run(find_lvl(lvl.copy_id))
+    start_pos = asyncio.run(find_lvl(lvl.copy_id)) if lvl else None
     table = []
     if lvl is None:
         # Находим start_pos копию
@@ -130,8 +132,6 @@ def level(lvl_id):
             table[-1].append(stage.is_completed)
             for run in stage.runs:
                 table[-1].append([run.percentages, run.is_completed])
-
-    print(table)
 
     # Рендерим страницу
     params = {"title": gd['title'],
@@ -207,15 +207,63 @@ def register():
     return render_template("register.html", **params)
 
 
-@app.route("/users/<string:username>")
+@app.route("/users/<int:user_id>", methods=['GET', 'POST'])
 @login_required
-def user_account(username):
-    user = db.session.query(User).filter(User.username == username).first()
+def user_profile(user_id):
+    user = db.session.query(User).filter(User.id == user_id).first()
 
-    if not user:
-        return "Такого пользователя не существует"
+    # Настройки для визуала / формочек
+    form_edit_password = EditPasswordForm()
+    form_edit = EditForm()
+    params = {
+        'title': 'Профиль',
+        'form_edit': form_edit,
+        'form_edit_password': form_edit_password,
+        'user': user}
+    param_active_tab_edit_password = {
+        'edit_password': 'aria-selected=true tabindex=-1',
+        'edit_password_active': 'active',
+        'edit_password_show': 'show'
+    }
+    param_active_tab_my_profile = {
+        'my_profile': 'aria-selected=true tabindex=-1',
+        'my_profile_active': 'active',
+        'my_profile_show': 'show'
+    }
+    active_tab = param_active_tab_my_profile
 
-    params = {"title": f"Профиль: {username}",
-              "user": user}
+    # Изменение пароля
+    if form_edit_password.validate_on_submit():
+        active_tab = param_active_tab_edit_password
+        if current_user.check_password(form_edit_password.password_check.data):
+            if form_edit_password.password_new.data == form_edit_password.password_again.data:
+                user = db.session.query(User).filter(User.email == current_user.email).first()
+                user.set_password(form_edit_password.password_new.data)
+                db.session.add(user)
+                db.session.commit()
+                return render_template('profile.html', **params, **active_tab, error_message='Успешно!')
+            return render_template('profile.html', **params, **active_tab, error_message='Пароли не совпадают')
+        return render_template('profile.html', **params, **active_tab, error_message='Неправильный пароль')
+    elif (form_edit_password.password_check.data or
+          form_edit_password.password_new.data or
+          form_edit_password.password_again.data):
+        return render_template('profile.html', **params, **param_active_tab_edit_password,
+                               error_message='Не все поля заполнены!')
 
-    return render_template("user_profile.html", **params)
+    # Изменение аватарки или имя пользователя
+    if form_edit.validate_on_submit():
+        user = db.session.query(User).get(current_user.id)
+        if form_edit.source_image.data and form_edit.source_image.data.filename:
+            alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+            if user.source_image != 'default.png':
+                os.remove(f'app/static/img/users_avatars/{user.source_image}')
+            filename = f'{"".join(choices(alphabet, k=15))}.png'
+            form_edit.source_image.data.save(f'app/static/img/users_avatars/{filename}')
+            user.source_image = filename
+        if form_edit.username.data:
+            user.username = form_edit.username.data
+        db.session.add(user)
+        db.session.commit()
+        return redirect(f'/users/{current_user.id}')
+
+    return render_template('profile.html', **params, **active_tab)

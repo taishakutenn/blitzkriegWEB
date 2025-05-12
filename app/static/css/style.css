@@ -77,7 +77,7 @@ img {
 }
 
 .bg-main {
-    background-image: url(../img/main.png);
+    background-image: url(../img/backgrounds/main.png);
 }
 
 .background {
@@ -99,14 +99,4 @@ img {
     padding: .75rem 0;
     background-color: transparent;
     box-shadow: 0 .5rem 1rem #00000026, inset 0 -1px #ffffff26;
-}
-
-.decorated-input {
-    width: 200px;
-    height: 3vh;
-    margin: auto;
-    font-size: 2vh;
-    font-weight: bold;
-    border: none;
-    background-color: red;
 }

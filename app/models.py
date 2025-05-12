@@ -13,6 +13,7 @@ class User(UserMixin, db.Model):
 
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     username = sa.Column(sa.String(50), index=True, unique=True, nullable=False)
+    source_image = sa.Column(sa.String(20), default='default.png')
     email = sa.Column(sa.String(120), index=True, unique=True, nullable=False)
     hashed_password = sa.Column(sa.String(256), nullable=True)
 
@@ -24,14 +25,6 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
-
-    def avatar(self, size):
-        """Этот метод генерирует url-адресс пользователя, на основе его почты, с помощью этого url
-        адресса на сервере Gravatar хранится аватарка пользоватлея, если этой аватарки нет, с помощью
-        параметра d в url-запроссе выставляется случайный аватар геометрического объекта"""
-
-        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
-        return f"https://www.gravatar.com/avatar/{digest}?s={size}&d=identicon"
 
 
 class Level(db.Model):
