@@ -66,6 +66,7 @@ class Run(db.Model):
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     percentages = sa.Column(sa.String, nullable=True)
     is_completed = sa.Column(sa.Boolean, default=False)
+    best_run = sa.Column(sa.String, nullable=True)
     stage_id = sa.Column(sa.Integer, sa.ForeignKey("stages.id"), nullable=False)
 
     # Связь с родительской таблицей

@@ -12,10 +12,10 @@ async def get_demonlist() -> list[dict]:
 
     async with aiohttp.ClientSession() as session:
         tasks = [request_data_get(url, {'limit': 50, 'after': i}, session) for i in range(0, 101, 50)]
+        top = []
+        for task in asyncio.as_completed(tasks):
+            top += await task
 
-    top = []
-    for task in asyncio.as_completed(tasks):
-        top += await task
     top.sort(key=lambda x: x['position'])
     for demon in top:
         if demon['verifier']['name'][0] == '[':

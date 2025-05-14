@@ -42,7 +42,7 @@ def save_state():
     Вызывается через Checkboxes.js при закрытии|переходе|обновлении вкладки /level/<lvl_id>
     """
     # Получаем и форматируем информацию из таблицы
-    [level_name, level_id, copy_id], *row_runs = request.json
+    [level_name, level_id, copy_id], row_runs, best_runs = request.json
     level_id = level_id.split()[-1]
     table = []
     for run in row_runs:
@@ -58,7 +58,7 @@ def save_state():
     if lvl is None and 'True' in str(table):
         lvl = Level(name=level_name,
                     level_id=level_id,
-                    copy_id=copy_id,
+                    copy_id=copy_id.split()[-1],
                     is_completed=False,
                     percent=0,
                     user_id=current_user.id)
@@ -80,6 +80,8 @@ def save_state():
             stage.is_completed = table[stage.number][0]
             for n, run in enumerate(stage.runs):
                 run.is_completed = table[stage.number][1:][n][1]
+                run.best_run = best_runs[0] if best_runs[0] else None
+                del best_runs[0]
 
         # Измеряем, пройден ли уровень
         completed = len(db.session.query(Stage.is_completed).filter(
@@ -135,7 +137,9 @@ def level(lvl_id):
             table.append([])
             table[-1].append(stage.is_completed)
             for run in stage.runs:
-                table[-1].append([run.percentages, run.is_completed])
+                table[-1].append([run.percentages,
+                                  run.is_completed,
+                                  run.best_run if run.best_run else ''])
 
     # Рендерим страницу
     params = {"title": gd['title'],
@@ -211,11 +215,36 @@ def register():
     return render_template("register.html", **params)
 
 
-@app.route("/users/<int:user_id>", methods=['GET', 'POST'])
-@login_required
+@app.route("/user/<int:user_id>", methods=['GET', 'POST'])
 def user_profile(user_id):
     user = db.session.query(User).filter(User.id == user_id).first()
-    levels = db.session.query(Level).filter(Level.user == user).all()
+
+    levels = []
+    for lvl in user.levels:
+        all_runs = 0
+        completed_runs = 0
+        best_run = []
+        for stage in lvl.stages:
+            for run in stage.runs:
+                all_runs += 1
+                if run.is_completed:
+                    completed_runs += 1
+                if run.best_run is not None:
+                    if run.best_run.isdigit():
+                        best_run.append({'string': run.best_run, 'percentages': int(run.best_run)})
+                    elif len(run.best_run.split('-')) == 2 and all(map(lambda x: x.isdigit(), run.best_run.split('-'))):
+                        n1, n2 = map(lambda x: int(x), run.best_run.split('-'))
+                        best_run.append({'string': run.best_run, 'percentages': abs(n1 - n2)})
+
+        levels.append({'id': lvl.level_id,
+                       'name': lvl.name,
+                       'status': lvl.is_completed,
+                       'stage_count': len(lvl.stages),
+                       'all_runs': all_runs,
+                       'completed_runs': completed_runs,
+                       'avg_progress': round(completed_runs * 100 / all_runs),
+                       'best_run': max(best_run, key=lambda x: x['percentages'])
+                       if best_run else {'string': '0', 'percentages': 0}})
 
     # Настройки для визуала / формочек
     form_edit_password = EditPasswordForm()
@@ -224,7 +253,8 @@ def user_profile(user_id):
         'title': 'Профиль',
         'form_edit': form_edit,
         'form_edit_password': form_edit_password,
-        'user': user}
+        'user': user,
+        'levels': levels}
     param_active_tab_edit_password = {
         'edit_password': 'aria-selected=true tabindex=-1',
         'edit_password_active': 'active',
@@ -269,6 +299,6 @@ def user_profile(user_id):
             user.username = form_edit.username.data
         db.session.add(user)
         db.session.commit()
-        return redirect(f'/users/{current_user.id}')
+        return redirect(f'/user/{current_user.id}')
 
     return render_template('profile.html', **params, **active_tab)

@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-{% if current_user.is_authenticated %}
 <section class="container">
     <div class="row justify-content-md-center">
 
@@ -59,7 +58,7 @@
                         </div>
                         <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
                             <!-- Изменение информации профиля -->
-                            <form action="/users/{{ user.id }}" method="post" enctype="multipart/form-data" novalidate>
+                            <form action="/user/{{ user.id }}" method="post" enctype="multipart/form-data" novalidate>
                                 {{ form_edit.hidden_tag() }}
                                 <div class="row mb-3">
                                     {{ form_edit.source_image.label(class="col-md-4 col-lg-3 col-form-label") }}
@@ -86,7 +85,7 @@
                         <div class="tab-pane fade pt-3 {{ edit_password_show }} {{ edit_password_active }}"
                              id="profile-change-password">
                             <!-- Изменение пароля -->
-                            <form action="/users/{{ user.id }}" method="post" novalidate>
+                            <form action="/user/{{ user.id }}" method="post" novalidate>
                                 <div class="row mb-3">
                                     {{ form_edit_password.hidden_tag() }}
                                     <a>{{ error_message }}</a>
@@ -128,6 +127,84 @@
 
     </div>
 
+    <!-- Список уровней -->
+    <div class="accordion mt-3 text-center" id="accordionLevels">
+        {% for level in levels %}
+        <h2>Уровни, в которые играл {{user.username}}:</h2>
+        <div class="accordion-item mt-3 card" style="width: 65%">
+            <h2 class="accordion-header">
+                <button type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapse{{level['id']}}" aria-controls="collapse{{level['id']}}"
+                        {% if loop.first %}
+                        class="accordion-button d-block text-center"
+                        aria-expanded="true"
+                        {% else %}
+                        class="accordion-button collapsed d-block text-center"
+                        aria-expanded="false"
+                        {% endif %}>
+                    {{level['name']}}
+                </button>
+            </h2>
+            <div id="collapse{{level['id']}}"
+                 {% if loop.first %}
+                 class="accordion-collapse collapse show"
+                 {% else %}
+                 class="accordion-collapse collapse"
+                 {% endif %}>
+                <div class="accordion-body">
+                    <a>Прогресс: {{level['avg_progress']}}%</a>
+                    <div class="progress" role="progressbar" aria-label="Progress"
+                         aria-valuenow="{{level['avg_progress']}}"
+                         aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar" style="width: {{level['avg_progress']}}%"></div>
+                    </div>
+                    <br>
+
+                    <table class="table table-dark table-borderless table-hover text-center mx-auto"
+                           style="border-radius: 6px; overflow: hidden; width: 80%;">
+                        <tbody>
+                        <tr>
+                            <th scope="row" width="50%">
+                                ID уровня:
+                            </th>
+                            <td>{{ level['id'] }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                Лучший ран:
+                            </th>
+                            <td class="text-center">
+                                {{ level['best_run']['string'] }} (ран в {{ level['best_run']['percentages'] }}%)
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                Количество стадий:
+                            </th>
+                            <td class="text-center">{{ level['stage_count'] }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                Количество ранов:
+                            </th>
+                            <td class="text-center">{{ level['all_runs'] }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                Пройденные раны:
+                            </th>
+                            <td class="text-center">{{ level['completed_runs'] }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <h2>{{user.username}} не играл ни в один уровень :(</h2>
+        {% endfor %}
+    </div>
+    <!-------------------->
+
 </section>
-{% endif %}
 {% endblock %}

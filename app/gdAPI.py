@@ -115,8 +115,9 @@ async def find_lvl(lvl_string: str) -> dict or None:
 async def get_blitzkrieg(lvl_id: int or str) -> list:
     """
     Возвращает таблицу блицкрига по уровню с id(GD) = lvl_id.
-    * [[False, ['50-100', False], ['0-100', False]...]...]
-      [стадия[не пройдена, run[проценты, не пройден], run[проценты, не пройден]...]...]
+    * [[False, ['50-100', False, ''], ['0-100', False, '']...]...]
+      [стадия[не пройдена, run[проценты, не пройден, лучший прогресс],
+                           run[проценты, не пройден, лучший прогресс]...]...]
     """
 
     # Константы
@@ -155,7 +156,7 @@ async def get_blitzkrieg(lvl_id: int or str) -> list:
     # Генерация таблицы
     table = []
     for stage in range(1, len(start_poses)):
-        table.append([False] + [[f'{p1} - {p2}', False]
+        table.append([False] + [[f'{p1} - {p2}', False, '']
                                 for p1, p2 in list(zip(start_poses[:-stage:], start_poses[stage::]))[::-1]])
     return table
 

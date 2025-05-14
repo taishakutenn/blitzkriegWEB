@@ -125,7 +125,7 @@
             <td>-</td>
         </tr>
         {% set s = loop.index %}
-        {% for run, state in stage[1:] %}
+        {% for run, state, best_run in stage[1:] %}
         <tr>
             <th scope="row">{{ run }}</th>
             <td>
@@ -145,7 +145,7 @@
                        aria-describedby="inputGroup-sizing-sm"
                        placeholder="Best run"
                        style="width: 200px; height: 3vh; margin: auto; font-size: 2vh;
-                       font-weight: bold; border: none; background: none;">
+                       font-weight: bold; border: none; background: none;" value="{{ best_run }}">
             </td>
         </tr>
         {% endfor %}
