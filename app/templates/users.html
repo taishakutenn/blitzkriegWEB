@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="container text-center">
+    <h1>Все игроки</h1>
+    <div class="list-group card" style="width: 70%">
+        {% for user, completions in users %}
+        <a href="user/{{ user.id }}" class="list-group-item list-group-item-action">{{ user.username }}<br>
+        <small>Пройденных уровней: {{ completions }}</small></a>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

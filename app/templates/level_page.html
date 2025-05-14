@@ -92,6 +92,7 @@
 
 <!-- Блицкриг таблица -->
 <div class="card mb-3 card_size text-center" style="max-width: 1000px; font-size: 2vh;">
+    {% if current_user.is_authenticated %}
     <div class="p-3 pb-md-4 text-center">
         <h2>Таблица прогрессов</h2>
         <h4>Информация о копии</h4>
@@ -152,7 +153,13 @@
         {% endfor %}
         </tbody>
     </table>
+    {% else %}
+    <div class="p-3 pb-md-4 text-center">
+        <h2>Для создания таблицы нужно зарегистрироваться!</h2>
+    </div>
+    {% endif %}
 </div>
+
 
 <script src="{{ url_for('static', filename='js/Checkboxes.js') }}"></script>
 

@@ -113,33 +113,36 @@ def level(lvl_id):
             else:
                 pointer = response
 
-    lvl = db.session.query(Level).filter(Level.user == current_user, Level.level_id == gd['id']).first()
-    start_pos = asyncio.run(find_lvl(lvl.copy_id)) if lvl else None
     table = []
-    if lvl is None:
-        # Находим start_pos копию
-        for response in asyncio.run(async_tasks([find_lvl(f'{gd['title']} startpos'[:20]),
-                                                 find_lvl(f'{gd['title']} sp'[:20])])):
-            if type(response) is dict:
-                if response['title'].lower() == f'{gd['title']} startpos'[:20].lower():
-                    start_pos = response
-                    break
-                else:
-                    start_pos = response
+    start_pos = None
+    if current_user.is_authenticated:
+        lvl = db.session.query(Level).filter(Level.user == current_user, Level.level_id == gd['id']).first()
+        start_pos = asyncio.run(find_lvl(lvl.copy_id)) if lvl else None
+        table = []
+        if lvl is None:
+            # Находим start_pos копию
+            for response in asyncio.run(async_tasks([find_lvl(f'{gd['title']} startpos'[:20]),
+                                                     find_lvl(f'{gd['title']} sp'[:20])])):
+                if type(response) is dict:
+                    if response['title'].lower() == f'{gd['title']} startpos'[:20].lower():
+                        start_pos = response
+                        break
+                    else:
+                        start_pos = response
 
-        # Составление таблицы из копии
-        if start_pos is not None:
-            table = asyncio.run(get_blitzkrieg(start_pos['id']))
+            # Составление таблицы из копии
+            if start_pos is not None:
+                table = asyncio.run(get_blitzkrieg(start_pos['id']))
 
-    else:
-        # Составление таблицы из бд
-        for stage in lvl.stages:
-            table.append([])
-            table[-1].append(stage.is_completed)
-            for run in stage.runs:
-                table[-1].append([run.percentages,
-                                  run.is_completed,
-                                  run.best_run if run.best_run else ''])
+        else:
+            # Составление таблицы из бд
+            for stage in lvl.stages:
+                table.append([])
+                table[-1].append(stage.is_completed)
+                for run in stage.runs:
+                    table[-1].append([run.percentages,
+                                      run.is_completed,
+                                      run.best_run if run.best_run else ''])
 
     # Рендерим страницу
     params = {"title": gd['title'],
@@ -217,6 +220,7 @@ def register():
 
 @app.route("/user/<int:user_id>", methods=['GET', 'POST'])
 def user_profile(user_id):
+    """Выводит профиль пользователя по его user_id"""
     user = db.session.query(User).filter(User.id == user_id).first()
 
     levels = []
@@ -302,3 +306,19 @@ def user_profile(user_id):
         return redirect(f'/user/{current_user.id}')
 
     return render_template('profile.html', **params, **active_tab)
+
+
+@app.route("/users", methods=['GET', 'POST'])
+def all_users():
+    """Выводит список всех пользователей, при нажатии на которых, совершается переход на его страницу"""
+
+    users = db.session.query(User).all()
+    completions = []
+    for user in users:
+        completions.append(len(db.session.query(Level).filter(Level.user == user, Level.is_completed).all()))
+    params = {
+        'title': 'Все игроки',
+        'users': sorted(list(zip(users, completions)), key=lambda x: x[1], reverse=True)
+    }
+
+    return render_template('users.html', **params)

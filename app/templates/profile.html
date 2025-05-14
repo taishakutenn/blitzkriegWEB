@@ -8,7 +8,7 @@
             <div class="card">
                 <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
                     <img src="../static/img/users_avatars/{{ user.source_image }}"
-                         alt="Profile" class="rounded-circle mb-3" style="width: 200px;height: 200px;">
+                         alt="Profile" class="rounded-circle mb-3" style="max-width: 200px;height: 200px;">
                     <h2>{{ user.username }}</h2>
                 </div>
             </div>
@@ -129,8 +129,12 @@
 
     <!-- Список уровней -->
     <div class="accordion mt-3 text-center" id="accordionLevels">
-        {% for level in levels %}
+        {% if levels %}
         <h2>Уровни, в которые играл {{user.username}}:</h2>
+        {% else %}
+        <h2>{{user.username}} не играл ни в один уровень :(</h2>
+        {% endif %}
+        {% for level in levels %}
         <div class="accordion-item mt-3 card" style="width: 65%">
             <h2 class="accordion-header">
                 <button type="button" data-bs-toggle="collapse"
@@ -200,8 +204,6 @@
                 </div>
             </div>
         </div>
-        {% else %}
-        <h2>{{user.username}} не играл ни в один уровень :(</h2>
         {% endfor %}
     </div>
     <!-------------------->
