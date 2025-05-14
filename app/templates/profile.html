@@ -3,6 +3,8 @@
 {% if current_user.is_authenticated %}
 <section class="container">
     <div class="row justify-content-md-center">
+
+        <!-- Аватарка -->
         <div class="col-xl-4">
             <div class="card">
                 <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
@@ -12,11 +14,14 @@
                 </div>
             </div>
         </div>
+        <!-------------->
+
+        <!--  Информация о пользователе, если user - текущий -->
         {% if current_user == user %}
         <div class="col-xl-8">
             <div class="card">
                 <div class="card-body pt-3" style="min-height: 302px">
-                    <!-- Bordered Tabs -->
+                    <!-- Вкладки -->
                     <ul class="nav nav-tabs nav-tabs-bordered">
                         <li class="nav-item">
                             <button class="nav-link {{ my_profile_active }}" {{ my_profile }}
@@ -53,7 +58,7 @@
                             </div>
                         </div>
                         <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
-                            <!-- Profile Edit Form -->
+                            <!-- Изменение информации профиля -->
                             <form action="/users/{{ user.id }}" method="post" enctype="multipart/form-data" novalidate>
                                 {{ form_edit.hidden_tag() }}
                                 <div class="row mb-3">
@@ -75,11 +80,12 @@
                                 <div class="text-center">
                                     {{ form_edit.submit(type="submit", class="btn btn-primary") }}
                                 </div>
-                            </form><!-- End Profile Edit Form -->
+                            </form>
+                            <!-- Конец изменения информации -->
                         </div>
                         <div class="tab-pane fade pt-3 {{ edit_password_show }} {{ edit_password_active }}"
                              id="profile-change-password">
-                            <!-- Change Password Form -->
+                            <!-- Изменение пароля -->
                             <form action="/users/{{ user.id }}" method="post" novalidate>
                                 <div class="row mb-3">
                                     {{ form_edit_password.hidden_tag() }}
@@ -109,14 +115,19 @@
                                 <div class="text-center">
                                     {{ form_edit_password.submit(type="submit", class="btn btn-primary") }}
                                 </div>
-                            </form><!-- End Change Password Form -->
+                            </form>
+                            <!-- Конец изменения пароля -->
                         </div>
-                    </div><!-- End Bordered Tabs -->
+                    </div>
+                    <!-- Конец вкладок -->
                 </div>
             </div>
         </div>
         {% endif %}
+        <!----------------------------------------------------->
+
     </div>
+
 </section>
 {% endif %}
 {% endblock %}

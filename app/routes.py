@@ -1,4 +1,4 @@
-"""В этом файле будут находиться все обработчики маршрутов на сайте"""
+"""В этом файле находятся все обработчики маршрутов на сайте"""
 from random import choices
 
 from flask import render_template, redirect, url_for, flash, request
@@ -20,32 +20,27 @@ if os.name == 'nt':
 
 @app.errorhandler(415)
 def unsupported_media_type(error):
+    """Эта ошибка происходит при попытке перейти на /save_state"""
     return redirect('/')
 
 
 @app.route("/")
 @app.route("/index")
 def index():
+    """Главная страница с топом уровней"""
+
     params = {"title": "Главная",
               'demonlist': asyncio.run(get_demonlist())}
-    # {'id': 562,
-    # 'position': 1,
-    # 'name': 'Tidal Wave',
-    # 'requirement': 72,
-    # 'video': 'https://www.youtube.com/watch?v=9fsZ014qB3s',
-    # 'thumbnail': 'https://i.ytimg.com/vi/9fsZ014qB3s/mqdefault.jpg',
-    # 'publisher': {'id': 56892, 'name': 'OniLink', 'banned': False},
-    # 'verifier': {'id': 53408, 'name': '[POB2P] Zoink', 'banned': False},
-    # 'level_id': 86407629}
     return render_template("index.html", **params)
-
-
-async def async_tasks(tasks):
-    return [await task for task in asyncio.as_completed(tasks)]
 
 
 @app.route("/save_state", methods=["GET", "POST"])
 def save_state():
+    """
+    Сохранение текущей информации на странице с уровнем
+    На страницу save_state перейти невозможно, так как перекидывает на index.
+    Вызывается через Checkboxes.js при закрытии|переходе|обновлении вкладки /level/<lvl_id>
+    """
     # Получаем и форматируем информацию из таблицы
     [level_name, level_id, copy_id], *row_runs = request.json
     level_id = level_id.split()[-1]
@@ -98,6 +93,15 @@ def save_state():
 
 @app.route("/level/<lvl_id>", methods=["GET", "POST"])
 def level(lvl_id):
+    """
+    Выводит всю информацию об уровне с id(GD) = lvl_id.
+    Генерирует таблицу прогрессов на уровне, если уровня нет у current_user.levels
+    """
+
+    # Функция выполняет список асинхронных функций
+    async def async_tasks(tasks):
+        return [await task for task in asyncio.as_completed(tasks)]
+
     # Находим информацию об уровне
     gd = pointer = None
     for response in asyncio.run(async_tasks([get_lvl(lvl_id), find_lvl(lvl_id)])):
@@ -211,6 +215,7 @@ def register():
 @login_required
 def user_profile(user_id):
     user = db.session.query(User).filter(User.id == user_id).first()
+    levels = db.session.query(Level).filter(Level.user == user).all()
 
     # Настройки для визуала / формочек
     form_edit_password = EditPasswordForm()
