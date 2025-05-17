@@ -1,165 +1,167 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="card mb-3" style="max-width: 1000px; text-align: center; font-size: 20px;">
-    <div class="p-3 pb-md-4 text-center">
-        <h2 class="lvl_info">{{ gd_info['title'] }}</h2>
-        <p>{{ gd_info['description'] }}</p>
-        {% if pointer_info %}
-        <img src="https://thumbnails.demonlist.org/{{ gd_info['id'] }}.png"
-             class="center-img rounded" style="width: 384px; height: 216px" alt="Не удалось найти картинку">
-        <div class="container">
-            <h4>Верифер</h4>
-            <a>{{ pointer_info['verifier']['name'] }}</a><br>
-            <a target="_blank"
-               class="text-body-secondary"
-               href="{{ pointer_info['video'] }}">Видео верификации</a>
+<section class="container">
+    <div class="card mb-3">
+        <div class="p-3 pb-md-4 text-center">
+            <h2 class="lvl_info">{{ gd_info['title'] }}</h2>
+            <p>{{ gd_info['description'] }}</p>
+            {% if pointer_info %}
+            <img src="https://thumbnails.demonlist.org/{{ gd_info['id'] }}.png"
+                 class="center-img rounded" style="width: 384px; height: 216px" alt="Не удалось найти картинку">
+            <div class="container">
+                <h4>Верифер</h4>
+                <a>{{ pointer_info['verifier']['name'] }}</a><br>
+                <a target="_blank"
+                   class="text-body-secondary"
+                   href="{{ pointer_info['video'] }}">Видео верификации</a>
+            </div>
+            {% else %}
+            <img src=https://raw.githubusercontent.com/cdc-sys/level-thumbnails/main/thumbs/{{gd_info['id']}}.png
+                 class="center-img rounded" style="width: 20vw; height: 11.25vw" alt="Не удалось найти картинку">
+            <p>Этого уровня нет в <a target="_blank" href="https://pointercrate.com/">pointercrate</a></p>
+            {% endif %}
         </div>
+
+        <div class="row row-cols-3 row-cols-md-3 mb-3 text-center" style="margin-left: 10px; margin-right: 10px">
+            <div class="col">
+                <div class="card mb-4 rounded-3 shadow-sm">
+                    <div class="card-header py-3 level-prop">
+                        <h5 class="my-0 fw-normal">Создатель</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ gd_info['creator'] }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card mb-4 rounded-3 shadow-sm">
+                    <div class="card-header py-3">
+                        <h5 class="my-0 fw-normal">ID уровня</h5></div>
+                    <div class="card-body">
+                        <p class="lvl_info">{{ gd_info['id'] }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card mb-4 rounded-3 shadow-sm">
+                    <div class="card-header py-3">
+                        <h5 class="my-0 fw-normal">Длина</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ gd_info['length'] }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card mb-4 rounded-3 shadow-sm">
+                    <div class="card-header py-3">
+                        <h5 class="my-0 fw-normal">Музыка</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            <a target="_blank"
+                               class="text-body-secondary"
+                               href="https://www.newgrounds.com/audio/listen/{{ gd_info['song'] }}">{{ gd_info['song']
+                                }}
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card mb-4 rounded-3 shadow-sm border-primary">
+                    <div class="card-header py-3 text-bg-primary border-primary">
+                        <h5 class="my-0 fw-normal">Сложность</h5>
+                    </div>
+                    <div class="card-body">
+                        <img src={{gd_info['difficulty'][1]}} style="width: 100%; height: 100%"
+                             class="center-img" alt="{{ gd_info['difficulty'][0] }}">
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card mb-4 rounded-3 shadow-sm">
+                    <div class="card-header py-3">
+                        <h5 class="my-0 fw-normal">Версия игры</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ gd_info['version'] }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Блицкриг таблица -->
+    <div class="card mb-3 card_size text-center" style="max-width: 1000px; font-size: 2vh;">
+        {% if current_user.is_authenticated %}
+        <div class="p-3 pb-md-4 text-center">
+            <h2>Таблица прогрессов</h2>
+            <h4>Информация о копии</h4>
+            <p style="margin: 0" class="lvl_info">ID уровня: {{ start_pos['id'] }}</p>
+            <p style="margin: 0">от {{ start_pos['creator'] }}</p>
+        </div>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Стадии</th>
+                <th scope="col">Статус</th>
+                <th scope="col">Лучший прогресс</th>
+            </tr>
+            </thead>
+            <tbody class="table-group-divider">
+            {% for stage in table %}
+            <tr class="table-active">
+                <th scope="row">Stage {{ loop.index }}</th>
+                <td>
+                    <div class="content">
+                        <label class="checkBox">
+                            {% if stage[0] %}
+                            <input name="Stage {{ loop.index }}" type="checkbox" class="{{ loop.index }}" checked>
+                            {% else %}
+                            <input name="Stage {{ loop.index }}" type="checkbox" class="{{ loop.index }}">
+                            {% endif %}
+                            <span class="transition" style="background-color: lime"></span>
+                        </label>
+                    </div>
+                </td>
+                <td>-</td>
+            </tr>
+            {% set s = loop.index %}
+            {% for run, state, best_run in stage[1:] %}
+            <tr>
+                <th scope="row">{{ run }}</th>
+                <td>
+                    <div class="content">
+                        <label class="checkBox">
+                            {% if state %}
+                            <input name="{{ run }}" class="{{ s }}" type="checkbox" checked>
+                            {% else %}
+                            <input name="{{ run }}" class="{{ s }}" type="checkbox">
+                            {% endif %}
+                            <span class="transition"></span>
+                        </label>
+                    </div>
+                </td>
+                <td>
+                    <input type="text" class="form-control text-white text-center"
+                           aria-describedby="inputGroup-sizing-sm"
+                           placeholder="Best run"
+                           style="width: 200px; height: 3vh; margin: auto; font-size: 2vh;
+                       font-weight: bold; border: none; background: none;" value="{{ best_run }}">
+                </td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
         {% else %}
-        <img src=https://raw.githubusercontent.com/cdc-sys/level-thumbnails/main/thumbs/{{gd_info['id']}}.png
-             class="center-img rounded" style="width: 20vw; height: 11.25vw" alt="Не удалось найти картинку">
-        <p>Этого уровня нет в <a target="_blank" href="https://pointercrate.com/">pointercrate</a></p>
+        <div class="p-3 pb-md-4 text-center">
+            <h2>Для создания таблицы нужно зарегистрироваться!</h2>
+        </div>
         {% endif %}
     </div>
-
-    <div class="row row-cols-1 row-cols-md-3 mb-3 text-center" style="margin-left: 10px; margin-right: 10px">
-        <div class="col">
-            <div class="card mb-4 rounded-3 shadow-sm">
-                <div class="card-header py-3">
-                    <h5 class="my-0 fw-normal">Создатель</h5>
-                </div>
-                <div class="card-body">
-                    <p>{{ gd_info['creator'] }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card mb-4 rounded-3 shadow-sm">
-                <div class="card-header py-3">
-                    <h5 class="my-0 fw-normal">ID уровня</h5></div>
-                <div class="card-body">
-                    <p class="lvl_info">{{ gd_info['id'] }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card mb-4 rounded-3 shadow-sm">
-                <div class="card-header py-3">
-                    <h5 class="my-0 fw-normal">Длина</h5>
-                </div>
-                <div class="card-body">
-                    <p>{{ gd_info['length'] }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card mb-4 rounded-3 shadow-sm">
-                <div class="card-header py-3">
-                    <h5 class="my-0 fw-normal">Музыка</h5>
-                </div>
-                <div class="card-body">
-                    <p>
-                        <a target="_blank"
-                           class="text-body-secondary"
-                           href="https://www.newgrounds.com/audio/listen/{{ gd_info['song'] }}">{{ gd_info['song'] }}
-                        </a>
-                    </p>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card mb-4 rounded-3 shadow-sm border-primary">
-                <div class="card-header py-3 text-bg-primary border-primary">
-                    <h5 class="my-0 fw-normal">Сложность</h5>
-                </div>
-                <div class="card-body">
-                    <img src={{gd_info['difficulty'][1]}} style="width: 160px; height: 144px"
-                         class="center-img" alt="{{ gd_info['difficulty'][0] }}">
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card mb-4 rounded-3 shadow-sm">
-                <div class="card-header py-3">
-                    <h5 class="my-0 fw-normal">Версия игры</h5>
-                </div>
-                <div class="card-body">
-                    <p>{{ gd_info['version'] }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Блицкриг таблица -->
-<div class="card mb-3 card_size text-center" style="max-width: 1000px; font-size: 2vh;">
-    {% if current_user.is_authenticated %}
-    <div class="p-3 pb-md-4 text-center">
-        <h2>Таблица прогрессов</h2>
-        <h4>Информация о копии</h4>
-        <p style="margin: 0" class="lvl_info">ID уровня: {{ start_pos['id'] }}</p>
-        <p style="margin: 0">от {{ start_pos['creator'] }}</p>
-    </div>
-    <table class="table table-hover">
-        <thead>
-        <tr>
-            <th scope="col">Стадии</th>
-            <th scope="col">Статус</th>
-            <th scope="col">Лучший прогресс</th>
-        </tr>
-        </thead>
-        <tbody class="table-group-divider">
-        {% for stage in table %}
-        <tr class="table-active">
-            <th scope="row">Stage {{ loop.index }}</th>
-            <td>
-                <div class="content">
-                    <label class="checkBox">
-                        {% if stage[0] %}
-                        <input name="Stage {{ loop.index }}" type="checkbox" class="{{ loop.index }}" checked>
-                        {% else %}
-                        <input name="Stage {{ loop.index }}" type="checkbox" class="{{ loop.index }}">
-                        {% endif %}
-                        <span class="transition" style="background-color: lime"></span>
-                    </label>
-                </div>
-            </td>
-            <td>-</td>
-        </tr>
-        {% set s = loop.index %}
-        {% for run, state, best_run in stage[1:] %}
-        <tr>
-            <th scope="row">{{ run }}</th>
-            <td>
-                <div class="content">
-                    <label class="checkBox">
-                        {% if state %}
-                        <input name="{{ run }}" class="{{ s }}" type="checkbox" checked>
-                        {% else %}
-                        <input name="{{ run }}" class="{{ s }}" type="checkbox">
-                        {% endif %}
-                        <span class="transition"></span>
-                    </label>
-                </div>
-            </td>
-            <td>
-                <input type="text" class="form-control text-white text-center"
-                       aria-describedby="inputGroup-sizing-sm"
-                       placeholder="Best run"
-                       style="width: 200px; height: 3vh; margin: auto; font-size: 2vh;
-                       font-weight: bold; border: none; background: none;" value="{{ best_run }}">
-            </td>
-        </tr>
-        {% endfor %}
-        {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <div class="p-3 pb-md-4 text-center">
-        <h2>Для создания таблицы нужно зарегистрироваться!</h2>
-    </div>
-    {% endif %}
-</div>
-
+</section>
 
 <script src="{{ url_for('static', filename='js/Checkboxes.js') }}"></script>
 

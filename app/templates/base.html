@@ -13,18 +13,39 @@
 <nav class="navbar navbar-expand-lg bg-dark">
     <div class="container-fluid">
 
-        <a class="navbar-brand text-white" style="font-size: 2vh;" href="{{ url_for('index') }}">Блицкриг</a>
+        <a class="navbar-brand font-bold whitespace-nowrap monospace"
+           href="{{ url_for('index') }}">BLITZKRIEG</a>
         <div style="border-left: 2px solid gray; height: 3vh; padding-left: 10px; margin-left: -5px"></div>
-        <a class="nav-link" style="font-size: 2vh" href="{{ url_for('all_users') }}">рейтинг игроков</a>
+        <a class="navbar-brand font-bold whitespace-nowrap monospace" style="color: rgb(143, 150, 143);"
+           href="{{ url_for('all_users') }}">РЕЙТИНГ ИГРОКОВ</a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+                aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <!-- Кнопки "Войти" и "Зарегистрироваться" справа -->
+                {% if not current_user.is_authenticated %}
+                <form class="me-2 mb-2 mt-2" method="get" action="{{ url_for('register') }}">
+                    <button type="submit" class="btn btn-primary">Зарегестрироваться</button>
+                </form>
+                <form class="mb-2 mt-2" action="{{ url_for('login') }}" method="get">
+                    <button type="submit" class="btn btn-primary">Войти</button>
+                </form>
+                {% else %}
+                <a class="nav-link active pt-2 text-nowrap" style="font-size: 20px"
+                   href="{{ url_for('user_profile', user_id=current_user.id) }}">
+                    {{ current_user.username }}
+                </a>
+                <img style="border-radius: 50%;"
+                     src="../static/img/users_avatars/{{ current_user.source_image }}"
+                     width="50px" height="50px">
+                {% endif %}
+            </div>
+        </div>
 
-        <div class="collapse navbar-collapse d-flex flex-row-reverse" id="navbarSupportedContent">
-            <!-- Кнопки "Войти" и "Зарегистрироваться" справа -->
+        <!-- <div class="collapse navbar-collapse d-flex flex-row-reverse" id="navbarSupportedContent">
             {% if not current_user.is_authenticated %}
             <div class="d-flex">
                 <form class="d-flex me-2" action="{{ url_for('login') }}" method="get">
@@ -48,7 +69,7 @@
                 </div>
             </div>
             {% endif %}
-        </div>
+        </div> -->
     </div>
 </nav>
 

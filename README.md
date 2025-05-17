@@ -7,7 +7,7 @@
 
 ## Сайт
 
-https://obsidian-able-airport.glitch.me/
+https://blitzkrieg-gd.glitch.me/
 
 Сайт развернут на [glitch](https://glitch.com/). Для этого был создан отдельный [репозиторий](https://github.com/AndreiB-v/BlitzkriegServer), в котором все файлы подготовленны к публикации на хостинг. Он создан только для [glitch](https://glitch.com/), я не знаю, работает ли он локально.
 
@@ -26,5 +26,5 @@ python run.py
 
 ## Авторы
 
-- [AndreiB-v](https://github.com/AndreiB-v)
 - [taishakutenn](https://github.com/taishakutenn)
+- [AndreiB-v](https://github.com/AndreiB-v)
